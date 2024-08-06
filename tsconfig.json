@@ -1,12 +1,21 @@
 {
   "compilerOptions": {
-    // Enable latest features
     "lib": ["ESNext"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
+    "outDir": "./dist",
+    "baseUrl": "./src",
+    "noImplicitAny": false,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "experimentalDecorators": true,
+    "alwaysStrict": true,
+    "forceConsistentCasingInFileNames": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
 
     // Bundler mode
     "moduleResolution": "bundler",
@@ -23,5 +32,8 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
-  }
+  },
+  "include": ["./src/**/*.ts", "./src/**/*.json"],
+  "exclude": ["node_modules"],
+  "files": ["node_modules/@types/node/index.d.ts"]
 }
