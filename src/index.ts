@@ -3,14 +3,16 @@ import * as os from "os";
 import { ExpressServer } from "./app";
 import "colorts/lib/string";
 import { PMS_DATA_SOURCE } from './utils/db_utils';
+import "reflect-metadata";
 
-const numCPUs = navigator?.hardwareConcurrency || os.cpus().length;
+
+const NUM_CPUs = os.cpus().length;
 
 function StartServer() {
   if (cluster.isPrimary) {
     console.log(`Primary worker with pid ${process.pid} is running`.green.underline);
 
-    for (let i = 0; i < numCPUs; i++) {
+    for (let i = 0; i < NUM_CPUs; i++) {
       cluster.fork();
     }
 
