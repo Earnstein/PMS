@@ -19,6 +19,9 @@
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
+  "scripts": {
+    "dev": "nodemon src/index.ts"
+  },
   "dependencies": {
     "express": "^4.19.2",
     "pg": "^8.12.0",
