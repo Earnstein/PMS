@@ -19,3 +19,5 @@ class RoleController {
         
     }
 }
+
+export default RoleController;
