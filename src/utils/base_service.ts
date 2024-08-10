@@ -120,8 +120,7 @@ class BaseService<T> {
   async findOne(id: string): Promise<ApiResponse<T> | undefined> {
     try {
       const where = {};
-      const primaryKey =
-        this.repository.metadata.primaryColumns[0].databaseName;
+      const primaryKey = this.repository.metadata.primaryColumns[0].databaseName;
       where[primaryKey] = id;
 
       const options: FindOneOptions<T> = { where: where };
