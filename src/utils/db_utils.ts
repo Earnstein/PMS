@@ -87,8 +87,7 @@ export class PMS_DATA_SOURCE {
 
         // Check if the repository instance already exists, if not, create it
         if (!this.repositories[entityName]) {
-          this.repositories[entityName] =
-            PMS_DATA_SOURCE.connection.getRepository(entity);
+          this.repositories[entityName] = PMS_DATA_SOURCE.connection.getRepository(entity);
         }
         return this.repositories[entityName];
       }
