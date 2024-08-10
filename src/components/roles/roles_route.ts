@@ -1,5 +1,24 @@
 import { Express } from "express";
-import RoleController from "./roles_controller";
+import RoleController, { RolesUtil } from "./roles_controller";
+import { validate } from "../../utils/validators";
+import { body } from "express-validator";
+
+const validRoleInput = [
+  body("name").trim().notEmpty().withMessage("Name is required"),
+  body("description").notEmpty().isLength({ max: 250 }).withMessage("Description must be less than 250 characters"),
+  body("permissions").custom((value: string) => {
+    const accessPermissions = value.split(",");
+    if (accessPermissions.length > 0) {
+      const validPermissions = RolesUtil.getAllPermissions();
+      const areAllPermissionValid = accessPermissions.every((permission) => validPermissions.includes(permission));
+      if (!areAllPermissionValid) {
+        throw new Error("Invalid permissions");
+      }
+    }
+    return true;
+  }).withMessage("permissions is required")
+]
+
 
 class RoleRoutes {
   private baseEndPoint = "/api/roles";
@@ -10,12 +29,12 @@ class RoleRoutes {
     app
       .route(this.baseEndPoint)
       .get(controller.getAllHandler)
-      .post(controller.addHandler);
+      .post(validate(validRoleInput), controller.addHandler);
 
     app
       .route(this.baseEndPoint + "/:id")
       .get(controller.getDetailsHandler)
-      .put(controller.updateHandler)
+      .put(validate(validRoleInput), controller.updateHandler)
       .delete(controller.deleteHandler);
   }
 }
