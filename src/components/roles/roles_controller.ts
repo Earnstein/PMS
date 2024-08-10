@@ -33,7 +33,12 @@ class RoleController {
     res.status(result.statusCode).json(result);
   }
 
-  public getDetailsHandler() {}
+  public async getDetailsHandler(req: Request, res: Response): Promise<void> {
+    const service = new RolesService();
+    const result = await service.findOne(req.params.id)
+    res.status(result.statusCode).json(result);
+
+  }
 
   public async updateHandler() {}
 
