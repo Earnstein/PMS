@@ -60,22 +60,16 @@ class BaseService<T> {
       }
 
       const where = {};
-      const primaryKey =
-        this.repository.metadata.primaryColumns[0].propertyName;
+      const primaryKey = this.repository.metadata.primaryColumns[0].databaseName;
       where[primaryKey] = id;
 
-      const validColumns = this.repository.metadata.columns.map(
-        (column) => column.propertyName
-      );
+      const validColumns = this.repository.metadata.columns.map((column) => column.propertyName);
 
       // Extract and filter only the valid columns from the data object.
       const updateQuery: any = {};
-      const keys = Object.keys(updateQuery) as UpdateDataKeys<T>[];
+      const keys = Object.keys(data) as UpdateDataKeys<T>[];
       for (const key of keys) {
-        if (
-          updateQuery.hasOwnProperty(key) &&
-          validColumns.includes(key as string)
-        ) {
+        if (data.hasOwnProperty(key) && validColumns.includes(key as string)) {
           updateQuery[key] = data[key];
         }
       }
