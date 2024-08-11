@@ -9,7 +9,7 @@ const validRoleInput = [
   body("permissions").custom((value: string) => {
     const accessPermissions = value.split(",");
     if (accessPermissions.length > 0) {
-      const validPermissions = RolesUtil.getAllPermissions();
+      const validPermissions = RolesUtil.getAllRightsFromPermissions();
       const areAllPermissionValid = accessPermissions.every((permission) => validPermissions.includes(permission));
       if (!areAllPermissionValid) {
         throw new Error("Invalid permissions");
