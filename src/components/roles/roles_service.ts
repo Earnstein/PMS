@@ -1,8 +1,6 @@
-import { Repository } from "typeorm";
 import BaseService from "../../utils/base_service";
-import { StatusCodes } from "http-status-codes";
 import Roles from "./roles_model";
-import { PMS_DATA_SOURCE } from "../../utils/db_utils";
+import { PMS_DATA_SOURCE } from "../../utils/db";
 
 class RolesService extends BaseService<Roles> {
     constructor() {
