@@ -17,6 +17,7 @@ function StartServer() {
       (async () => {
         await PMS_DATA_SOURCE.getInstance();
         await DBUtil.addDefaultRoles();
+        await DBUtil.addDefaultUser();
         process.exit(0);
       })();
     } else {
