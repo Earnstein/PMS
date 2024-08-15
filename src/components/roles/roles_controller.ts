@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { PERMISSIONS } from "../../utils/commmon";
+import { PERMISSIONS } from "../../utils/common";
 import Roles from "./roles_model";
 import RolesService from "./roles_service";
 
