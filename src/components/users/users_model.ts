@@ -14,13 +14,13 @@ import {
     @PrimaryGeneratedColumn("uuid")
     user_id: string;
   
-    @Column({ length: 250, nullable: false })
+    @Column({ length: 250, nullable: true })
     firstname: string;
 
-    @Column({ length: 250, nullable: false })
+    @Column({ length: 250, nullable: true })
     lastname: string;
 
-    @Column({ length: 250, nullable: false })
+    @Column({ length: 250, nullable: false, unique: true })
     username: string;
     
     @Column({ length: 100, nullable: false, unique: true })
@@ -32,7 +32,7 @@ import {
     @Column({ nullable: false })
     @ManyToOne(() => Roles)
     @JoinColumn({name: 'role_id'})
-    role: string;
+    role_id: Roles['role_id'];
   
     @CreateDateColumn()
     created_at: Date;
