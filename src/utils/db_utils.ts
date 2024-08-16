@@ -18,8 +18,10 @@ export class DBUtil {
     try {
       const defaultRoles = DEFAULT_ROLES;
       const existingRoles = await roleService.findAll({});
+
       for (const role of defaultRoles) {
         const existingRole = existingRoles.data.find((r) => r.name === role.name);
+
         const newRole: Roles = {
           role_id: v4(),
           name: role.name,
@@ -29,17 +31,13 @@ export class DBUtil {
           updated_at: new Date(),
         };
 
-        if (existingRole) {
-          if (existingRole.permissions !== newRole.permissions) {
-            await roleService.update(existingRole.role_id, newRole);
-            console.log(`Updated role ${existingRole.name}`);
-          }
-        } else {
+        if (!existingRole) {
           const result = await roleService.create(newRole);
-          console.log(`Added role ${result.data.name}`);
           if (result.statusCode === 201 && role.name === "SuperAdmin") {
             this.superAdminRoleID = result.data.role_id;
           }
+        } else if (existingRole.permissions !== newRole.permissions) {
+          await roleService.update(existingRole.role_id, newRole);
         }
       }
       return true;
@@ -65,7 +63,7 @@ export class DBUtil {
         updated_at: new Date(),
       };
       const existingUser = await service.findAll({username: "SuperAdmin"});
-      if (!existingUser) {
+      if (existingUser.data.length === 0) {
         const result = await service.create(user);
         console.log("Added super Admin User", result);
         if (result.statusCode === 201) {
