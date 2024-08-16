@@ -5,7 +5,7 @@ import { v4 } from "uuid";
 import UsersService from "../components/users/users_service";
 import Users from "../components/users/users_model";
 import * as config from  "../../config.json";
-import { encryptString } from "./common";
+import { encryptString, DEFAULT_ROLES } from './common';
 
 
 
@@ -13,33 +13,39 @@ export class DBUtil {
   private static superAdminRoleID: string;
 
   public static async addDefaultRoles(): Promise<boolean> {
+    const roleService = new RolesService();
+
     try {
-      const service = new RolesService();
-      const rights = RolesUtil.getAllRightsFromPermissions();
-      const role: Roles = {
-        role_id: v4(),
-        name: "SuperAdmin",
-        description: "Admin with all permissions.",
-        permissions: rights.join(","),
-        created_at: new Date(),
-        updated_at: new Date(),
-      };
-      const result = await service.create(role);
-      console.log("Added super Admin Rights", result);
-      if (result.statusCode === 201) {
-        this.superAdminRoleID = result.data.role_id;
-        return true;
-      } else if (result.statusCode === 409) {
-        const roles = await service.findAll({ name: "SuperAdmin" });
-        if (roles.data.length > 0) {
-          this.superAdminRoleID = roles.data[0].role_id;
-          return true;
+      const defaultRoles = DEFAULT_ROLES;
+      const existingRoles = await roleService.findAll({});
+      for (const role of defaultRoles) {
+        const existingRole = existingRoles.data.find((r) => r.name === role.name);
+        const newRole: Roles = {
+          role_id: v4(),
+          name: role.name,
+          description: role.description,
+          permissions: role.permissions.join(","),
+          created_at: new Date(),
+          updated_at: new Date(),
+        };
+
+        if (existingRole) {
+          if (existingRole.permissions !== newRole.permissions) {
+            await roleService.update(existingRole.role_id, newRole);
+            console.log(`Updated role ${existingRole.name}`);
+          }
+        } else {
+          const result = await roleService.create(newRole);
+          console.log(`Added role ${result.data.name}`);
+          if (result.statusCode === 201 && role.name === "SuperAdmin") {
+            this.superAdminRoleID = result.data.role_id;
+          }
         }
       }
-      return false;
+      return true;
     } catch (error) {
-      console.error(`Error Adding default role ${error.message}`);
-      return false
+      console.error(`Error adding default roles: ${error.message}`);
+      return false;
     }
   }
 
@@ -54,15 +60,19 @@ export class DBUtil {
         username: "SuperAdmin",
         email: config.default_user.email,
         password: password,
-        role: this.superAdminRoleID,
+        role_id: this.superAdminRoleID,
         created_at: new Date(),
         updated_at: new Date(),
       };
-      const result = await service.create(user);
-      console.log("Added super Admin User", result);
-      if (result.statusCode === 201) {
-        return true;
-      }
+      const existingUser = await service.findAll({username: "SuperAdmin"});
+      if (!existingUser) {
+        const result = await service.create(user);
+        console.log("Added super Admin User", result);
+        if (result.statusCode === 201) {
+          return true;
+        }
+      };
+      console.log("Default user Added already.")
       return false;
     } catch (error) {
       console.error(`Error Adding default user ${error.message}`);
