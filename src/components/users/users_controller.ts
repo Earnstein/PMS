@@ -1,23 +1,115 @@
+import { Request, Response } from "express";
+import UsersService from "./users_service";
+import RolesService from "../roles/roles_service";
+import { bcryptCompare, encryptString, SERVER_CONST } from "../../utils/common";
+import { StatusCodes } from "http-status-codes";
+import * as jwt from "jsonwebtoken";
+import { TokenManager } from '../../utils/token_service';
+
 class UserController {
-    public addHandler(){
+  /**
+   * Adds a new user to the system.
+   *
+   * @param {Request} req - The HTTP request object.
+   * @param {Response} res - The HTTP response object.
+   * @return {Promise<void>} A promise that resolves when the user is added successfully.
+   */
+  public async addHandler(req: Request, res: Response): Promise<void> {
+    try {
+      const user = req.body;
+      const roleService = new RolesService();
+      const userService = new UsersService();
+      const role = await roleService.findAll({ name: "Viewer" });
+      user.role_id = role.data[0].role_id;
+      user.password = await encryptString(user.password);
+      const result = await userService.create(user);
+      res.status(result.statusCode).json(result);
+      return;
+    } catch (error) {
+      console.error(`Error adding user: ${error.message}`);
+      res
+        .status(500)
+        .json({
+          message: "Internal server error",
+          statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+          status: "failed",
+        });
+      return;
+    }
+  }
 
+  /**
+   * Handles the HTTP request to retrieve all users.
+   *
+   * @param {Request} req - The HTTP request object.
+   * @param {Response} res - The HTTP response object.
+   * @return {Promise<void>} A promise that resolves when the request is handled successfully.
+   */
+  public async getAllHandler(req: Request, res: Response): Promise<void> {
+    const service = new UsersService();
+    const result = await service.findAll(req.query);
+    res.status(result.statusCode).json(result);
+    return;
+  }
+
+  public getDetailsHandler() {}
+
+  public async updateHandler() {}
+
+  public async deleteHandler() {}
+
+  /**
+   * Handles user login by verifying the provided email and password.
+   * If the credentials are valid, it generates and returns an access token and a refresh token.
+   *
+   * @param {Request} req - The HTTP request object.
+   * @param {Response} res - The HTTP response object.
+   * @return {Promise<void>} A promise that resolves when the login process is complete.
+   */
+  public async loginHandler(req: Request, res: Response): Promise<void> {
+    const { email, password } = req.body;
+    const service = new UsersService();
+    const existingUser = await service.findAll({ email: email });
+    if (existingUser.data.length < 1) {
+      res
+        .status(404)
+        .json({
+          message: "User not found",
+          statusCode: StatusCodes.NOT_FOUND,
+          status: "failed",
+        });
+      return;
     }
 
-    public getAllHandler(){
-
+    const user = existingUser.data[0];
+    const isMatch = await bcryptCompare(password, user.password);
+    if (!isMatch) {
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({
+          message: "Password does not match",
+          statusCode: StatusCodes.BAD_REQUEST,
+          status: "failed",
+        });
+      return;
     }
+    const payload = {user_id: user.user_id};
+    const accessToken: string = TokenManager.generateToken(payload, "access");
+    const refreshToken: string = TokenManager.generateToken(payload, "refresh");
 
-    public getDetailsHandler(){
+    res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        status: "success",
+        data: {
+            accessToken,
+            refreshToken
+        }
+    })
+  }
 
-    }
+  public async getAccessTokenFromRefreshTokenHandler(req: Request, res: Response): Promise<void> {
 
-    public async updateHandler(){
-
-    }
-
-    public async deleteHandler(){
-        
-    }
+  }
 }
 
 export default UserController;
