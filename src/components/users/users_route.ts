@@ -34,8 +34,11 @@ class UserRoutes {
       .delete(controller.deleteHandler);
 
     app
-      .route(this.baseEndPoint + "/login")
-      .post(controller.loginHandler);
+      .route("/api/login")
+      .post(controller.loginHandler)
+    
+    app.route("/api/refresh_token")
+    .post(controller.getAccessTokenFromRefreshToken);
   }
 }
 
