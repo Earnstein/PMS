@@ -22,7 +22,10 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "dev": "nodemon dist/src/index.js"
+    "dev": "nodemon dist/src/index.js",
+    "createdb": "docker exec -it voldermort psql -U earnstein -c \"CREATE DATABASE pms;\"",
+    "dropdb": "docker exec -it voldermort psql -U earnstein -c \"DROP DATABASE pms;\"",
+    "postgres": "docker run -d --name voldermort -p 5432:5432 -e POSTGRES_USER=earnstein -e POSTGRES_PASSWORD=59145914 postgres"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
